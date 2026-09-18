@@ -9,8 +9,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // DATABASE_URL: conexão com pooling (usada em runtime pelo app).
+  // DIRECT_URL: conexão direta, sem pooling (usada só pelo `prisma migrate`).
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // papel é armazenado como String (não enum nativo) por consistência com o

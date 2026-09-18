@@ -4,21 +4,36 @@ CRM multi-tenant para a agência: um workspace com kanban de leads por cliente, 
 
 ## Stack
 
-Next.js 15 (App Router) + TypeScript + Tailwind CSS v3 + Prisma (SQLite em dev, troque o `provider`/`url` em `prisma/schema.prisma` para Postgres em produção) + Framer Motion + dnd-kit + Zod.
+Next.js 15 (App Router) + TypeScript + Tailwind CSS v3 + Prisma (PostgreSQL — Neon/Supabase) + Framer Motion + dnd-kit + Zod.
 
 Autenticação própria (sem NextAuth): sessão em cookie httpOnly assinado com JWT (`jose`), senha com hash `bcryptjs`, controle de papel (`admin`/`cliente`) via `src/middleware.ts` + `src/lib/auth.ts`.
+
+## Variáveis de ambiente
+
+Copie `.env.example` para `.env` e preencha:
+
+- `DATABASE_URL` — connection string do Postgres **com pooling** (usada pelo app em runtime).
+- `DIRECT_URL` — connection string **sem pooling** (usada só pelo `prisma migrate`). No Neon, é a mesma tela da connection string, só desligar o toggle "Connection pooling".
+- `SESSION_SECRET` — string aleatória forte. Gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
 
 ## Rodando localmente
 
 ```bash
 npm install
-npm run db:migrate   # cria o banco SQLite e aplica o schema (roda o seed automaticamente)
+npm run db:migrate   # aplica o schema no banco apontado por DATABASE_URL/DIRECT_URL
 npm run dev
 ```
 
-Se precisar popular o banco de novo manualmente: `npm run db:seed`.
+Para popular com dados de teste (só em dev, nunca em produção): `npm run db:seed`.
 
-## Login de teste (dados do seed)
+## Deploy (Vercel + Neon)
+
+1. Crie um banco no [Neon](https://neon.tech) (grátis) e pegue as duas connection strings (com e sem pooling).
+2. No Vercel, importe este repositório e configure as 3 variáveis de ambiente acima (`DATABASE_URL`, `DIRECT_URL`, `SESSION_SECRET`).
+3. Deploy. O script `build` (`prisma generate && prisma migrate deploy && next build`) já aplica as migrações no banco novo automaticamente — não precisa rodar nada manual.
+4. **Importante:** o build de produção não roda o seed (ele só existe para dev, com senhas de teste). Depois do primeiro deploy, crie o usuário admin real diretamente no banco (rode um script apontando `DATABASE_URL` para a connection string do Neon).
+
+## Login de teste (dados do seed, só em dev)
 
 | Papel | E-mail | Senha |
 |---|---|---|
