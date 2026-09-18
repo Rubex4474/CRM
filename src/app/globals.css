@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 7%;
+    --foreground: 210 25% 96%;
+
+    --card: 222 40% 11%;
+    --card-foreground: 210 25% 96%;
+
+    --popover: 222 40% 11%;
+    --popover-foreground: 210 25% 96%;
+
+    --primary: 0 72% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 28% 17%;
+    --secondary-foreground: 210 20% 92%;
+
+    --muted: 222 28% 15%;
+    --muted-foreground: 215 16% 63%;
+
+    --accent: 222 28% 19%;
+    --accent-foreground: 210 20% 92%;
+
+    --success: 158 64% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 30 30% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 24% 20%;
+    --input: 222 24% 20%;
+    --ring: 0 72% 51%;
+
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+}
+
+/* estados de drag do dnd-kit para os cards do kanban */
+.kanban-card-dragging {
+  @apply opacity-50;
+}

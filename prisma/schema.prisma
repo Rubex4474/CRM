@@ -1,0 +1,118 @@
+// Prisma schema - CRM da Agência (multi-tenant)
+// PostgreSQL gerenciado (Neon/Supabase) em produção e em dev — nenhum código
+// depende do provider, mas SQLite ficou pra trás porque não roda em hospedagem
+// serverless (filesystem efêmero do Vercel).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// papel é armazenado como String (não enum nativo) por consistência com o
+// restante do schema — SQLite não tem suporte nativo a enum no Prisma.
+model Usuario {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  papel     String // "admin" | "cliente"
+  clienteId String?
+  cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  criadoEm  DateTime @default(now())
+
+  @@index([clienteId])
+}
+
+model Cliente {
+  id        String    @id @default(cuid())
+  nome      String
+  // true apenas para o workspace especial "Meus Leads" do próprio admin
+  // (prospecção da agência via anúncios) — não aparece na listagem de
+  // clientes gerenciados nem nos cards do dashboard.
+  ehAgencia Boolean   @default(false)
+  criadoEm  DateTime  @default(now())
+  usuarios  Usuario[]
+  funis     Funil[]
+  leads     Lead[]
+  tarefas   TarefaAgencia[]
+  notas     NotaCliente[]
+}
+
+model Funil {
+  id        String    @id @default(cuid())
+  clienteId String
+  cliente   Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  nome      String
+  estagios  Estagio[]
+
+  @@index([clienteId])
+}
+
+model Estagio {
+  id      String @id @default(cuid())
+  funilId String
+  funil   Funil  @relation(fields: [funilId], references: [id], onDelete: Cascade)
+  nome    String
+  ordem   Int
+  leads   Lead[]
+
+  @@index([funilId])
+}
+
+model Lead {
+  id           String        @id @default(cuid())
+  clienteId    String
+  cliente      Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  estagioId    String
+  estagio      Estagio       @relation(fields: [estagioId], references: [id], onDelete: Cascade)
+  nome         String
+  contato      String?
+  origem       String?
+  notas        String?
+  ordem        Int           @default(0)
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+  tarefas      TarefaLead[]
+
+  @@index([clienteId])
+  @@index([estagioId])
+}
+
+model TarefaLead {
+  id           String    @id @default(cuid())
+  leadId       String
+  lead         Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  descricao    String
+  dataPrevista DateTime?
+  concluida    Boolean   @default(false)
+  criadoEm     DateTime  @default(now())
+
+  @@index([leadId])
+}
+
+model TarefaAgencia {
+  id           String    @id @default(cuid())
+  clienteId    String
+  cliente      Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  descricao    String
+  dataPrevista DateTime?
+  concluida    Boolean   @default(false)
+  criadoEm     DateTime  @default(now())
+
+  @@index([clienteId])
+}
+
+model NotaCliente {
+  id        String   @id @default(cuid())
+  clienteId String
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  texto     String
+  criadoEm  DateTime @default(now())
+
+  @@index([clienteId])
+}
