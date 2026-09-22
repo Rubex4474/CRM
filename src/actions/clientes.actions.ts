@@ -13,7 +13,17 @@ const criarClienteSchema = z.object({
   nome: z.string().min(1, "Informe o nome do cliente."),
   email: z.string().email("Informe um e-mail válido para o login do cliente."),
   senha: z.string().min(6, "A senha precisa ter pelo menos 6 caracteres."),
+  tarefas: z.string().optional(),
 });
+
+/** Uma tarefa por linha, ignorando linhas em branco — sem exigir data. */
+function parseTarefasChecklist(texto: string | undefined): string[] {
+  if (!texto) return [];
+  return texto
+    .split("\n")
+    .map((linha) => linha.trim())
+    .filter(Boolean);
+}
 
 export type CriarClienteState = { erro?: string };
 
@@ -27,6 +37,7 @@ export async function criarClienteAction(
     nome: formData.get("nome"),
     email: formData.get("email"),
     senha: formData.get("senha"),
+    tarefas: formData.get("tarefas") || undefined,
   });
 
   if (!parsed.success) {
@@ -37,6 +48,8 @@ export async function criarClienteAction(
   if (emailExistente) {
     return { erro: "Já existe um usuário com esse e-mail." };
   }
+
+  const descricoesTarefas = parseTarefasChecklist(parsed.data.tarefas);
 
   const cliente = await prisma.cliente.create({
     data: {
@@ -56,6 +69,9 @@ export async function criarClienteAction(
           senhaHash: await bcrypt.hash(parsed.data.senha, 10),
           papel: "cliente",
         },
+      },
+      tarefas: {
+        create: descricoesTarefas.map((descricao) => ({ descricao })),
       },
     },
   });

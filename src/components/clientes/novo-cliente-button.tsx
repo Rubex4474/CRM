@@ -6,6 +6,7 @@ import { criarClienteAction, type CriarClienteState } from "@/actions/clientes.a
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const initialState: CriarClienteState = {};
@@ -21,7 +22,7 @@ export function NovoClienteButton() {
         Novo cliente
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Novo cliente</DialogTitle>
           </DialogHeader>
@@ -37,6 +38,18 @@ export function NovoClienteButton() {
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="senha-cliente">Senha inicial</Label>
               <Input id="senha-cliente" name="senha" type="text" required placeholder="Mínimo 6 caracteres" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="tarefas-cliente">Checklist de tarefas (opcional)</Label>
+              <Textarea
+                id="tarefas-cliente"
+                name="tarefas"
+                rows={4}
+                placeholder={"Uma tarefa por linha, sem precisar de data. Ex:\nPegar acesso ao Facebook Ads\nDefinir persona\nCriar primeira campanha"}
+              />
+              <p className="text-xs text-muted-foreground">
+                Vira uma tarefa por linha na página do cliente — sem data, é só um checklist. Dá pra adicionar mais (com ou sem data) depois.
+              </p>
             </div>
             {state.erro && (
               <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
