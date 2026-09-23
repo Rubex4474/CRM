@@ -20,6 +20,11 @@ CREATE TABLE "Cliente" (
     "nome" TEXT NOT NULL,
     "ehAgencia" BOOLEAN NOT NULL DEFAULT false,
     "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "valorContrato" DOUBLE PRECISION,
+    "diaVencimento" INTEGER,
+    "inicioContrato" TIMESTAMP(3),
+    "fimContrato" TIMESTAMP(3),
+    "obsContrato" TEXT,
 
     CONSTRAINT "Cliente_pkey" PRIMARY KEY ("id")
 );

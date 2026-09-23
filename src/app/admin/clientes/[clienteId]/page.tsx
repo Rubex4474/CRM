@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import { getClienteDetalhe } from "@/services/clientes.service";
 import { ClienteHeader } from "@/components/clientes/cliente-header";
 import { ClienteLoginCard } from "@/components/clientes/cliente-login-card";
+import { ClienteContratoCard } from "@/components/clientes/cliente-contrato-card";
 import { ClienteTarefas } from "@/components/clientes/cliente-tarefas";
 import { NotasPanel } from "@/components/notas/notas-panel";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,14 @@ export default async function ClienteDetalhePage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="flex flex-col gap-6">
+          <ClienteContratoCard
+            clienteId={cliente.id}
+            valorContrato={cliente.valorContrato}
+            diaVencimento={cliente.diaVencimento}
+            inicioContrato={cliente.inicioContrato}
+            fimContrato={cliente.fimContrato}
+            obsContrato={cliente.obsContrato}
+          />
           <ClienteLoginCard clienteId={cliente.id} usuarioId={usuario?.id} email={usuario?.email} />
           <ClienteTarefas clienteId={cliente.id} tarefas={cliente.tarefas} />
         </div>

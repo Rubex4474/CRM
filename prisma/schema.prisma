@@ -39,6 +39,16 @@ model Cliente {
   // clientes gerenciados nem nos cards do dashboard.
   ehAgencia Boolean   @default(false)
   criadoEm  DateTime  @default(now())
+
+  // Informações comerciais do contrato — todas opcionais, preenchidas
+  // manualmente pelo admin na página do cliente.
+  valorContrato   Float?
+  // Dia do mês (1-31) em que o pagamento vence.
+  diaVencimento   Int?
+  inicioContrato  DateTime?
+  fimContrato     DateTime?
+  obsContrato     String?
+
   usuarios  Usuario[]
   funis     Funil[]
   leads     Lead[]

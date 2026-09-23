@@ -131,6 +131,56 @@ export async function redefinirSenhaClienteAction(
   return { sucesso: true };
 }
 
+const atualizarContratoSchema = z.object({
+  clienteId: z.string().min(1),
+  valorContrato: z.string().optional(),
+  diaVencimento: z.string().optional(),
+  inicioContrato: z.string().optional(),
+  fimContrato: z.string().optional(),
+  obsContrato: z.string().optional(),
+});
+
+export type AtualizarContratoState = { erro?: string; sucesso?: boolean };
+
+export async function atualizarContratoAction(
+  _prevState: AtualizarContratoState,
+  formData: FormData,
+): Promise<AtualizarContratoState> {
+  await requireAdmin();
+
+  const parsed = atualizarContratoSchema.safeParse({
+    clienteId: formData.get("clienteId"),
+    valorContrato: formData.get("valorContrato") || undefined,
+    diaVencimento: formData.get("diaVencimento") || undefined,
+    inicioContrato: formData.get("inicioContrato") || undefined,
+    fimContrato: formData.get("fimContrato") || undefined,
+    obsContrato: formData.get("obsContrato") || undefined,
+  });
+
+  if (!parsed.success) {
+    return { erro: "Dados inválidos." };
+  }
+
+  const diaVencimento = parsed.data.diaVencimento ? Number(parsed.data.diaVencimento) : null;
+  if (diaVencimento !== null && (diaVencimento < 1 || diaVencimento > 31)) {
+    return { erro: "O dia de vencimento precisa ser entre 1 e 31." };
+  }
+
+  await prisma.cliente.update({
+    where: { id: parsed.data.clienteId },
+    data: {
+      valorContrato: parsed.data.valorContrato ? Number(parsed.data.valorContrato) : null,
+      diaVencimento,
+      inicioContrato: parsed.data.inicioContrato ? new Date(parsed.data.inicioContrato) : null,
+      fimContrato: parsed.data.fimContrato ? new Date(parsed.data.fimContrato) : null,
+      obsContrato: parsed.data.obsContrato || null,
+    },
+  });
+
+  revalidatePath(`/admin/clientes/${parsed.data.clienteId}`);
+  return { sucesso: true };
+}
+
 export async function excluirClienteAction(input: { clienteId: string }) {
   await requireAdmin();
 
