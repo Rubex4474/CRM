@@ -33,5 +33,5 @@ export function Logo({ className }: { className?: string }) {
   }
 
   // eslint-disable-next-line @next/next/no-img-element -- tamanho variável entre usos
-  return <img src="/logo.png" alt="Stockmann CRM" className={cn("rounded-xl object-cover", className)} />;
+  return <img src="/logo.png" alt="Stockmann CRM" className={cn("object-contain", className)} />;
 }
