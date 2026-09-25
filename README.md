@@ -1,4 +1,4 @@
-# CRM Agência
+# Stockmann CRM
 
 CRM multi-tenant para a agência: um workspace com kanban de leads por cliente, cada cliente com login próprio, e um dashboard/board de tarefas exclusivo do admin. Ver `../crm-mvp-especificacao.md` para a especificação original.
 

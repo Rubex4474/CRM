@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, Target, ListTodo, LogOut } from "lucide-react";
 import { logoutAction } from "@/actions/auth.actions";
+import { Logo } from "@/components/branding/logo";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -19,11 +20,9 @@ export function AdminSidebar({ nome }: { nome: string }) {
   return (
     <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-border bg-card">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary font-heading text-sm font-bold text-primary-foreground">
-          SC
-        </div>
+        <Logo className="h-9 w-9 shrink-0 text-base font-bold" />
         <div>
-          <p className="font-heading text-sm font-bold leading-tight">CRM Agência</p>
+          <p className="font-heading text-sm font-bold leading-tight">Stockmann CRM</p>
           <p className="text-xs text-muted-foreground">{nome}</p>
         </div>
       </div>

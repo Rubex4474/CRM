@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const heading = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-heading" });
 
 export const metadata: Metadata = {
-  title: "CRM Agência",
-  description: "CRM multi-tenant para gestão de leads e tarefas dos clientes da agência.",
+  title: "Stockmann CRM",
+  description: "CRM multi-tenant para gestão de leads e tarefas dos clientes da Stockmann Company.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
