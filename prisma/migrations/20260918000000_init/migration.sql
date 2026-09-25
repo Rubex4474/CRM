@@ -1,4 +1,4 @@
-﻿-- CreateSchema
+-- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateTable
@@ -149,4 +149,3 @@ ALTER TABLE "TarefaAgencia" ADD CONSTRAINT "TarefaAgencia_clienteId_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "NotaCliente" ADD CONSTRAINT "NotaCliente_clienteId_fkey" FOREIGN KEY ("clienteId") REFERENCES "Cliente"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
