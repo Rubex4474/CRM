@@ -33,15 +33,19 @@ Para popular com dados de teste (só em dev, nunca em produção): `npm run db:s
 3. Deploy. O script `build` (`prisma generate && prisma migrate deploy && next build`) já aplica as migrações no banco novo automaticamente — não precisa rodar nada manual.
 4. **Importante:** o build de produção não roda o seed (ele só existe para dev, com senhas de teste). Depois do primeiro deploy, crie o usuário admin real diretamente no banco (rode um script apontando `DATABASE_URL` para a connection string do Neon).
 
+## Padrão de login por cliente
+
+E-mail `cliente@[empresa].com`, senha `[empresa]123` (minúsculo, sem espaço/acento). Ex: Hidrolife → `cliente@hidrolife.com` / `hidrolife123`. Definido na tela `/admin/clientes` ao cadastrar cada cliente.
+
 ## Login de teste (dados do seed, só em dev)
 
 | Papel | E-mail | Senha |
 |---|---|---|
 | Admin | admin@agencia.com | admin123 |
-| Cliente (CL Cuidados) | cliente@clcuidados.com | cliente123 |
-| Cliente (Tandello Vidros) | cliente@tandellovidros.com | cliente123 |
+| Cliente (CL Cuidados) | cliente@clcuidados.com | clcuidados123 |
+| Cliente (Tandello Vidros) | cliente@tandellovidros.com | tandellovidros123 |
 
-Troque essas credenciais antes de qualquer uso real — `prisma/seed.ts` é só para desenvolvimento.
+Troque a senha do admin antes de qualquer uso real — `prisma/seed.ts` é só para desenvolvimento.
 
 ## Estrutura
 

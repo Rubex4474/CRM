@@ -70,16 +70,17 @@ async function main() {
 
   await criarWorkspaceAgencia();
 
+  // Padrão de credenciais por cliente: cliente@[empresa].com / [empresa]123
   const { funil: funilA } = await criarClienteComFunil(
     "CL Cuidados",
     "cliente@clcuidados.com",
-    "cliente123",
+    "clcuidados123",
   );
 
   const { funil: funilB } = await criarClienteComFunil(
     "Tandello Vidros",
     "cliente@tandellovidros.com",
-    "cliente123",
+    "tandellovidros123",
   );
 
   const [novoA, contatoA] = funilA.estagios;
