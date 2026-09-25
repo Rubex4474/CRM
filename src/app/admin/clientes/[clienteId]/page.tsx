@@ -4,6 +4,7 @@ import { getClienteDetalhe } from "@/services/clientes.service";
 import { ClienteHeader } from "@/components/clientes/cliente-header";
 import { ClienteLoginCard } from "@/components/clientes/cliente-login-card";
 import { ClienteContratoCard } from "@/components/clientes/cliente-contrato-card";
+import { ClienteLogoCard } from "@/components/clientes/cliente-logo-card";
 import { ClienteTarefas } from "@/components/clientes/cliente-tarefas";
 import { NotasPanel } from "@/components/notas/notas-panel";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ export default async function ClienteDetalhePage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="flex flex-col gap-6">
+          <ClienteLogoCard clienteId={cliente.id} nome={cliente.nome} logoUrl={cliente.logoUrl} />
           <ClienteContratoCard
             clienteId={cliente.id}
             valorContrato={cliente.valorContrato}

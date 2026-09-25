@@ -98,6 +98,28 @@ export async function renomearClienteAction(formData: FormData) {
   revalidatePath("/admin/clientes");
 }
 
+const atualizarLogoSchema = z.object({
+  clienteId: z.string().min(1),
+  logoUrl: z.string().optional(),
+});
+
+export async function atualizarLogoAction(formData: FormData) {
+  await requireAdmin();
+
+  const parsed = atualizarLogoSchema.parse({
+    clienteId: formData.get("clienteId"),
+    logoUrl: formData.get("logoUrl") || undefined,
+  });
+
+  await prisma.cliente.update({
+    where: { id: parsed.clienteId },
+    data: { logoUrl: parsed.logoUrl?.trim() || null },
+  });
+
+  revalidatePath(`/admin/clientes/${parsed.clienteId}`);
+  revalidatePath(`/workspace/${parsed.clienteId}`);
+}
+
 const redefinirSenhaSchema = z.object({
   usuarioId: z.string().min(1),
   clienteId: z.string().min(1),

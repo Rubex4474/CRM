@@ -20,6 +20,7 @@ CREATE TABLE "Cliente" (
     "nome" TEXT NOT NULL,
     "ehAgencia" BOOLEAN NOT NULL DEFAULT false,
     "criadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "logoUrl" TEXT,
     "valorContrato" DOUBLE PRECISION,
     "diaVencimento" INTEGER,
     "inicioContrato" TIMESTAMP(3),

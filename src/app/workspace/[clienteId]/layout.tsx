@@ -18,7 +18,7 @@ export default async function WorkspaceLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <WorkspaceHeader clienteNome={cliente.nome} isAdmin={sessao.papel === "admin"} />
+      <WorkspaceHeader clienteNome={cliente.nome} logoUrl={cliente.logoUrl} isAdmin={sessao.papel === "admin"} />
       <main className="flex-1 overflow-hidden">{children}</main>
     </div>
   );

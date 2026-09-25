@@ -40,6 +40,10 @@ model Cliente {
   ehAgencia Boolean   @default(false)
   criadoEm  DateTime  @default(now())
 
+  // URL/caminho da logo do cliente, mostrada no workspace dele no lugar da
+  // logo da Stockmann (que passa a aparecer como assinatura menor embaixo).
+  logoUrl   String?
+
   // Informações comerciais do contrato — todas opcionais, preenchidas
   // manualmente pelo admin na página do cliente.
   valorContrato   Float?
