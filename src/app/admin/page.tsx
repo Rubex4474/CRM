@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Users } from "lucide-react";
-import { getResumoClientes } from "@/services/dashboard.service";
-import { Card, CardContent } from "@/components/ui/card";
+import { AlertTriangle, ArrowRight, Calendar, FileCheck, Users, Wallet } from "lucide-react";
+import { getResumoClientes, getResumoFinanceiro } from "@/services/dashboard.service";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
-  const clientes = await getResumoClientes();
+  const [clientes, financeiro] = await Promise.all([getResumoClientes(), getResumoFinanceiro()]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -16,6 +17,63 @@ export default async function AdminDashboardPage() {
           Visão geral de todos os clientes da agência.
         </p>
       </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card>
+          <CardContent className="flex items-center gap-4 pt-6">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <FileCheck className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Contratos ativos</p>
+              <p className="font-heading text-2xl font-bold leading-tight">{financeiro.contratosAtivos}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-4 pt-6">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-success/10 text-success">
+              <Wallet className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Receita mensal (contratos ativos)</p>
+              <p className="font-heading text-2xl font-bold leading-tight">
+                {formatCurrency(financeiro.receitaMensal)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5" />
+            Próximos pagamentos
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1 pt-0">
+          {financeiro.proximosPagamentos.length === 0 && (
+            <p className="text-sm text-muted-foreground">Nenhum vencimento configurado ainda.</p>
+          )}
+          {financeiro.proximosPagamentos.slice(0, 5).map((pagamento) => (
+            <div
+              key={pagamento.clienteId}
+              className="flex items-center justify-between border-b border-border py-2 text-sm last:border-0"
+            >
+              <span className="font-medium">{pagamento.nome}</span>
+              <span className="flex shrink-0 items-center gap-3 text-muted-foreground">
+                {formatDate(pagamento.data)}
+                {pagamento.valor != null && (
+                  <span className="w-24 text-right font-medium text-foreground">
+                    {formatCurrency(pagamento.valor)}
+                  </span>
+                )}
+              </span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       {clientes.length === 0 ? (
         <Card>

@@ -14,6 +14,10 @@ export function formatDate(value: string | Date): string {
   }).format(date);
 }
 
+export function formatCurrency(valor: number): string {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+}
+
 export function isOverdue(dataPrevista: Date | string | null, concluida: boolean): boolean {
   if (!dataPrevista || concluida) return false;
   const date = typeof dataPrevista === "string" ? new Date(dataPrevista) : dataPrevista;
