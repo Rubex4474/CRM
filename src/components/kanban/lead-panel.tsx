@@ -11,7 +11,7 @@ import {
   criarTarefaLeadAction,
   excluirTarefaLeadAction,
 } from "@/actions/tarefas-lead.actions";
-import { buildWhatsappLink, cn, formatDate, isOverdue } from "@/lib/utils";
+import { buildWhatsappLink, cn, formatCurrency, formatDate, isOverdue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,10 +22,12 @@ import { Separator } from "@/components/ui/separator";
 export function LeadPanel({
   clienteId,
   lead,
+  estagioNome,
   onClose,
 }: {
   clienteId: string;
   lead: LeadComTarefas | null;
+  estagioNome: string;
   onClose: () => void;
 }) {
   return (
@@ -49,7 +51,7 @@ export function LeadPanel({
             transition={{ type: "tween", duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
             className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border bg-card"
           >
-            <PanelContent clienteId={clienteId} lead={lead} onClose={onClose} />
+            <PanelContent clienteId={clienteId} lead={lead} estagioNome={estagioNome} onClose={onClose} />
           </motion.div>
         </>
       )}
@@ -60,10 +62,12 @@ export function LeadPanel({
 function PanelContent({
   clienteId,
   lead,
+  estagioNome,
   onClose,
 }: {
   clienteId: string;
   lead: LeadComTarefas;
+  estagioNome: string;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -72,15 +76,19 @@ function PanelContent({
   const [contato, setContato] = useState(lead.contato ?? "");
   const [origem, setOrigem] = useState(lead.origem ?? "");
   const [notas, setNotas] = useState(lead.notas ?? "");
+  const [valorProposta, setValorProposta] = useState(lead.valorProposta?.toString() ?? "");
   const [novaTarefa, setNovaTarefa] = useState("");
   const [novaData, setNovaData] = useState("");
+
+  const ehEtapaDeProposta = estagioNome.toLowerCase().includes("proposta");
 
   useEffect(() => {
     setNome(lead.nome);
     setContato(lead.contato ?? "");
     setOrigem(lead.origem ?? "");
     setNotas(lead.notas ?? "");
-  }, [lead.id, lead.nome, lead.contato, lead.origem, lead.notas]);
+    setValorProposta(lead.valorProposta?.toString() ?? "");
+  }, [lead.id, lead.nome, lead.contato, lead.origem, lead.notas, lead.valorProposta]);
 
   const whatsappLink = buildWhatsappLink(contato);
 
@@ -93,6 +101,7 @@ function PanelContent({
       formData.set("contato", contato);
       formData.set("origem", origem);
       formData.set("notas", notas);
+      formData.set("valorProposta", valorProposta);
       await atualizarLeadAction(formData);
       router.refresh();
     });
@@ -180,6 +189,21 @@ function PanelContent({
             <Label htmlFor="lead-origem">Origem</Label>
             <Input id="lead-origem" value={origem} onChange={(e) => setOrigem(e.target.value)} onBlur={salvarDados} />
           </div>
+          {ehEtapaDeProposta && (
+            <div className="flex flex-col gap-1.5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+              <Label htmlFor="lead-valor-proposta">Valor da proposta enviada (R$)</Label>
+              <Input
+                id="lead-valor-proposta"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Ex: 1500.00"
+                value={valorProposta}
+                onChange={(e) => setValorProposta(e.target.value)}
+                onBlur={salvarDados}
+              />
+            </div>
+          )}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="lead-notas">Notas</Label>
             <Textarea id="lead-notas" value={notas} onChange={(e) => setNotas(e.target.value)} onBlur={salvarDados} rows={4} />

@@ -91,6 +91,8 @@ model Lead {
   contato      String?
   origem       String?
   notas        String?
+  // Preenchido quando o lead está numa etapa de proposta (ex: "Proposta enviada").
+  valorProposta Float?
   ordem        Int           @default(0)
   criadoEm     DateTime      @default(now())
   atualizadoEm DateTime      @updatedAt

@@ -149,6 +149,7 @@ export function KanbanBoard({
       <LeadPanel
         clienteId={clienteId}
         lead={selectedLead}
+        estagioNome={columns.find((c) => c.leads.some((l) => l.id === selectedLead?.id))?.nome ?? ""}
         onClose={() => setSelectedLead(null)}
       />
 

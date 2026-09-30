@@ -3,7 +3,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { AlertTriangle, Phone, Tag } from "lucide-react";
 import type { LeadComTarefas } from "@/services/workspace.service";
-import { cn, isOverdue } from "@/lib/utils";
+import { cn, formatCurrency, isOverdue } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 
 export function LeadCard({
@@ -51,6 +51,9 @@ export function LeadCard({
           <Tag className="h-3 w-3" />
           {lead.origem}
         </p>
+      )}
+      {lead.valorProposta != null && (
+        <p className="mt-1.5 text-xs font-semibold text-primary">{formatCurrency(lead.valorProposta)}</p>
       )}
       {(pendentes > 0 || temAtrasada) && (
         <div className="mt-2 flex items-center gap-1.5">

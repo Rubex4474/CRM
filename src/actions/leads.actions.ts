@@ -53,6 +53,7 @@ const atualizarLeadSchema = z.object({
   contato: z.string().optional(),
   origem: z.string().optional(),
   notas: z.string().optional(),
+  valorProposta: z.string().optional(),
 });
 
 export async function atualizarLeadAction(formData: FormData) {
@@ -63,6 +64,7 @@ export async function atualizarLeadAction(formData: FormData) {
     contato: formData.get("contato") || undefined,
     origem: formData.get("origem") || undefined,
     notas: formData.get("notas") || undefined,
+    valorProposta: formData.get("valorProposta") || undefined,
   });
 
   await requireAcessoCliente(parsed.clienteId);
@@ -74,6 +76,7 @@ export async function atualizarLeadAction(formData: FormData) {
       contato: parsed.contato,
       origem: parsed.origem,
       notas: parsed.notas,
+      valorProposta: parsed.valorProposta ? Number(parsed.valorProposta) : null,
     },
   });
 
