@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -24,6 +24,7 @@ export function KanbanBoard({
   estagios: EstagioComLeads[];
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
   const [columns, setColumns] = useState(estagios);
   const [activeLead, setActiveLead] = useState<LeadComTarefas | null>(null);
@@ -40,6 +41,16 @@ export function KanbanBoard({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [estagios]);
+
+  // Deep-link vindo da aba Tarefas: /workspace/[id]?lead=<leadId> abre o painel direto.
+  useEffect(() => {
+    const leadId = searchParams.get("lead");
+    if (!leadId) return;
+    const lead = estagios.flatMap((estagio) => estagio.leads).find((l) => l.id === leadId);
+    if (lead) setSelectedLead(lead);
+    router.replace(`/workspace/${clienteId}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
