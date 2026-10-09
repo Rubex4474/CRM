@@ -40,7 +40,7 @@ export function LoginForm() {
               <Input id="senha" name="senha" type="password" placeholder="••••••••" required />
             </div>
             {state.erro && (
-              <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {state.erro}
               </p>
             )}

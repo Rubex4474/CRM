@@ -4,41 +4,44 @@
 
 @layer base {
   :root {
-    --background: 222 47% 7%;
-    --foreground: 210 25% 96%;
+    /* Fundo quase neutro, só um toque de azul — evita o "roxo/navy de template".
+       Superfícies (card/popover) ficam próximas do fundo; quem separa é a borda,
+       não o preenchimento — look mais plano e deliberado. */
+    --background: 224 20% 6%;
+    --foreground: 210 18% 93%;
 
-    --card: 222 40% 11%;
-    --card-foreground: 210 25% 96%;
+    --card: 224 18% 8.5%;
+    --card-foreground: 210 18% 93%;
 
-    --popover: 222 40% 11%;
-    --popover-foreground: 210 25% 96%;
+    --popover: 224 18% 9%;
+    --popover-foreground: 210 18% 93%;
 
-    --primary: 0 72% 51%;
+    --primary: 356 68% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 28% 17%;
-    --secondary-foreground: 210 20% 92%;
+    --secondary: 224 14% 13%;
+    --secondary-foreground: 210 14% 86%;
 
-    --muted: 222 28% 15%;
-    --muted-foreground: 215 16% 63%;
+    --muted: 224 14% 11%;
+    --muted-foreground: 220 9% 56%;
 
-    --accent: 222 28% 19%;
-    --accent-foreground: 210 20% 92%;
+    --accent: 224 14% 14%;
+    --accent-foreground: 210 14% 86%;
 
-    --success: 158 64% 40%;
+    --success: 158 55% 39%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    --warning: 38 85% 49%;
     --warning-foreground: 30 30% 10%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 356 68% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 222 24% 20%;
-    --input: 222 24% 20%;
-    --ring: 0 72% 51%;
+    --border: 224 13% 16%;
+    --input: 224 13% 17%;
+    --ring: 356 68% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
   }
 }
 
@@ -55,11 +58,15 @@
   h4,
   h5,
   h6 {
-    @apply font-heading;
+    @apply font-heading tracking-tight;
+  }
+  /* Números (dinheiro, contagens) alinhados em coluna — sem "dançar" entre dígitos. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
 /* estados de drag do dnd-kit para os cards do kanban */
 .kanban-card-dragging {
-  @apply opacity-50;
+  @apply opacity-40;
 }

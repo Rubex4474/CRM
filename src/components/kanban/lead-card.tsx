@@ -34,7 +34,7 @@ export function LeadCard({
       {...(dragOverlay ? {} : { ...listeners, ...attributes })}
       onClick={onClick}
       className={cn(
-        "cursor-pointer select-none p-3 transition-shadow hover:shadow-card",
+        "cursor-pointer select-none p-3 transition-colors hover:border-muted-foreground/30",
         isDragging && "kanban-card-dragging",
         dragOverlay && "rotate-2 shadow-lg",
       )}

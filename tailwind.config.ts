@@ -80,8 +80,9 @@ const config: Config = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       boxShadow: {
-        subtle: "0 1px 2px 0 rgb(0 0 0 / 0.2), 0 1px 3px 0 rgb(0 0 0 / 0.15)",
-        card: "0 2px 8px -2px rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.25)",
+        subtle: "0 1px 2px 0 rgb(0 0 0 / 0.16)",
+        card: "0 1px 0 0 rgb(0 0 0 / 0.2)",
+        panel: "-12px 0 32px -8px rgb(0 0 0 / 0.45)",
       },
     },
   },
