@@ -1,11 +1,17 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowUpRight } from "lucide-react";
-import { getResumoClientes, getResumoFinanceiro } from "@/services/dashboard.service";
-import { Card, CardContent } from "@/components/ui/card";
+import { AlertTriangle, ArrowUpRight, Calendar, FileCheck, Wallet } from "lucide-react";
+import { getGraficosAdmin, getResumoClientes, getResumoFinanceiro } from "@/services/dashboard.service";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatTile } from "@/components/dashboard/stat-tile";
+import { HorizontalBarChart } from "@/components/charts/horizontal-bar-chart";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
-  const [clientes, financeiro] = await Promise.all([getResumoClientes(), getResumoFinanceiro()]);
+  const [clientes, financeiro, graficos] = await Promise.all([
+    getResumoClientes(),
+    getResumoFinanceiro(),
+    getGraficosAdmin(),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -17,26 +23,42 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 divide-y divide-border overflow-hidden rounded-lg border border-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-        <div className="px-5 py-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Contratos ativos
-          </p>
-          <p className="mt-1.5 font-heading text-3xl font-bold tabular-nums leading-none">
-            {financeiro.contratosAtivos}
-          </p>
-        </div>
-        <div className="px-5 py-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Receita mensal recorrente
-          </p>
-          <p className="mt-1.5 font-heading text-3xl font-bold tabular-nums leading-none">
-            {formatCurrency(financeiro.receitaMensal)}
-          </p>
-        </div>
+        <StatTile icon={FileCheck} label="Contratos ativos" value={financeiro.contratosAtivos} accent="#22D3EE" />
+        <StatTile
+          icon={Wallet}
+          label="Receita mensal recorrente"
+          value={formatCurrency(financeiro.receitaMensal)}
+          accent="#34D399"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Leads por cliente</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <HorizontalBarChart dados={graficos.leadsPorCliente} vazio="Nenhum lead cadastrado ainda." />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Receita por cliente</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <HorizontalBarChart
+              dados={graficos.receitaPorCliente}
+              formato="moeda"
+              vazio="Nenhum contrato configurado ainda."
+            />
+          </CardContent>
+        </Card>
       </div>
 
       <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5" />
           Próximos pagamentos
         </h2>
         {financeiro.proximosPagamentos.length === 0 ? (

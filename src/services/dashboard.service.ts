@@ -103,3 +103,28 @@ export async function getResumoFinanceiro(): Promise<ResumoFinanceiro> {
 
   return { contratosAtivos: ativos.length, receitaMensal, proximosPagamentos };
 }
+
+export type GraficosAdmin = {
+  leadsPorCliente: { nome: string; valor: number }[];
+  receitaPorCliente: { nome: string; valor: number }[];
+};
+
+export async function getGraficosAdmin(): Promise<GraficosAdmin> {
+  const clientes = await prisma.cliente.findMany({
+    where: { ehAgencia: false },
+    select: { nome: true, valorContrato: true, leads: { select: { id: true } } },
+  });
+
+  const leadsPorCliente = clientes
+    .map((c) => ({ nome: c.nome, valor: c.leads.length }))
+    .sort((a, b) => b.valor - a.valor)
+    .slice(0, 8);
+
+  const receitaPorCliente = clientes
+    .filter((c) => c.valorContrato != null)
+    .map((c) => ({ nome: c.nome, valor: c.valorContrato! }))
+    .sort((a, b) => b.valor - a.valor)
+    .slice(0, 8);
+
+  return { leadsPorCliente, receitaPorCliente };
+}

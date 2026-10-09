@@ -1,8 +1,9 @@
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Users, Wallet } from "lucide-react";
 import { getDashboardDoWorkspace } from "@/services/workspace.service";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LeadsPorEstagioChart } from "@/components/charts/leads-por-estagio-chart";
+import { StatTile } from "@/components/dashboard/stat-tile";
+import { HorizontalBarChart } from "@/components/charts/horizontal-bar-chart";
 import { NovosLeadsChart } from "@/components/charts/novos-leads-chart";
 import { LeadsPorOrigemChart } from "@/components/charts/leads-por-origem-chart";
 
@@ -25,35 +26,20 @@ export default async function WorkspaceDashboardPage({
         </div>
 
         <div className="grid grid-cols-2 divide-x divide-y divide-border overflow-hidden rounded-lg border border-border sm:grid-cols-4 sm:divide-y-0">
-          <div className="px-5 py-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Total de leads</p>
-            <p className="mt-1.5 font-heading text-2xl font-bold tabular-nums leading-none">{dados.totalLeads}</p>
-          </div>
-          <div className="px-5 py-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Em propostas</p>
-            <p className="mt-1.5 font-heading text-2xl font-bold tabular-nums leading-none">
-              {formatCurrency(dados.valorEmPropostas)}
-            </p>
-          </div>
-          <div className="px-5 py-4">
-            <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-destructive">
-              <AlertTriangle className="h-3 w-3" />
-              Atrasadas
-            </p>
-            <p className="mt-1.5 font-heading text-2xl font-bold tabular-nums leading-none">
-              {dados.tarefasAtrasadas}
-            </p>
-          </div>
-          <div className="px-5 py-4">
-            <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <CheckCircle2 className="h-3 w-3" />
-              No prazo
-            </p>
-            <p className="mt-1.5 font-heading text-2xl font-bold tabular-nums leading-none">
-              {dados.tarefasNoPrazo}
-            </p>
-          </div>
+          <StatTile icon={Users} label="Total de leads" value={dados.totalLeads} accent="#22D3EE" />
+          <StatTile icon={Wallet} label="Em propostas" value={formatCurrency(dados.valorEmPropostas)} accent="#34D399" />
+          <StatTile icon={AlertTriangle} label="Atrasadas" value={dados.tarefasAtrasadas} accent="#FB7185" />
+          <StatTile icon={CheckCircle2} label="No prazo" value={dados.tarefasNoPrazo} accent="#A78BFA" />
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Novos leads (últimos 14 dias)</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <NovosLeadsChart dados={dados.novosLeadsPorDia} />
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
@@ -61,7 +47,9 @@ export default async function WorkspaceDashboardPage({
               <CardTitle>Leads por etapa</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <LeadsPorEstagioChart dados={dados.leadsPorEstagio} />
+              <HorizontalBarChart
+                dados={dados.leadsPorEstagio.map((e) => ({ nome: e.nome, valor: e.quantidade }))}
+              />
             </CardContent>
           </Card>
 
@@ -71,15 +59,6 @@ export default async function WorkspaceDashboardPage({
             </CardHeader>
             <CardContent className="pt-0">
               <LeadsPorOrigemChart dados={dados.leadsPorOrigem} />
-            </CardContent>
-          </Card>
-
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Novos leads (últimos 14 dias)</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <NovosLeadsChart dados={dados.novosLeadsPorDia} />
             </CardContent>
           </Card>
         </div>

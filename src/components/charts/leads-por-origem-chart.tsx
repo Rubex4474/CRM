@@ -17,17 +17,32 @@ export function LeadsPorOrigemChart({ dados }: { dados: { nome: string; quantida
 
   return (
     <div className="flex items-center gap-6">
-      <ResponsiveContainer width={160} height={160} className="shrink-0">
-        <PieChart>
-          <Pie data={dados} dataKey="quantidade" nameKey="nome" innerRadius={48} outerRadius={78} paddingAngle={2}>
-            {dados.map((entry, index) => (
-              <Cell key={entry.nome} fill={CHART_CATEGORICAL[index % CHART_CATEGORICAL.length]} stroke="none" />
-            ))}
-          </Pie>
-          <Tooltip content={ChartTooltipContent} />
-        </PieChart>
-      </ResponsiveContainer>
-      <ul className="flex min-w-0 flex-1 flex-col gap-2">
+      <div className="relative shrink-0">
+        <ResponsiveContainer width={180} height={180}>
+          <PieChart>
+            <Pie
+              data={dados}
+              dataKey="quantidade"
+              nameKey="nome"
+              innerRadius={58}
+              outerRadius={88}
+              paddingAngle={3}
+              startAngle={90}
+              endAngle={-270}
+            >
+              {dados.map((entry, index) => (
+                <Cell key={entry.nome} fill={CHART_CATEGORICAL[index % CHART_CATEGORICAL.length]} stroke="none" />
+              ))}
+            </Pie>
+            <Tooltip content={ChartTooltipContent} />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <span className="font-heading text-2xl font-bold tabular-nums leading-none">{total}</span>
+          <span className="mt-1 text-[11px] text-muted-foreground">{total === 1 ? "lead" : "leads"}</span>
+        </div>
+      </div>
+      <ul className="flex min-w-0 flex-1 flex-col gap-2.5">
         {dados.map((d, index) => (
           <li key={d.nome} className="flex items-center justify-between gap-3 text-sm">
             <span className="flex min-w-0 items-center gap-2">
@@ -37,8 +52,8 @@ export function LeadsPorOrigemChart({ dados }: { dados: { nome: string; quantida
               />
               <span className="truncate">{d.nome}</span>
             </span>
-            <span className="shrink-0 tabular-nums text-muted-foreground">
-              {d.quantidade} · {Math.round((d.quantidade / total) * 100)}%
+            <span className="shrink-0 tabular-nums font-medium text-muted-foreground">
+              {d.quantidade} <span className="text-foreground">· {Math.round((d.quantidade / total) * 100)}%</span>
             </span>
           </li>
         ))}
