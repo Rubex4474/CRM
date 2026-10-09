@@ -48,7 +48,7 @@ export function KanbanBoard({
     if (!leadId) return;
     const lead = estagios.flatMap((estagio) => estagio.leads).find((l) => l.id === leadId);
     if (lead) setSelectedLead(lead);
-    router.replace(`/workspace/${clienteId}`);
+    router.replace(`/workspace/${clienteId}/kanban`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, ListChecks } from "lucide-react";
+import { LayoutDashboard, LayoutGrid, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function WorkspaceTabs({ clienteId }: { clienteId: string }) {
@@ -10,7 +10,8 @@ export function WorkspaceTabs({ clienteId }: { clienteId: string }) {
   const base = `/workspace/${clienteId}`;
 
   const tabs = [
-    { href: base, label: "Kanban", icon: LayoutGrid, exact: true },
+    { href: base, label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: `${base}/kanban`, label: "Kanban", icon: LayoutGrid, exact: false },
     { href: `${base}/tarefas`, label: "Tarefas", icon: ListChecks, exact: false },
   ];
 

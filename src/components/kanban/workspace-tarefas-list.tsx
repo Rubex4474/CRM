@@ -38,7 +38,7 @@ function Linha({
           {tarefa.descricao}
         </p>
         <Link
-          href={`/workspace/${clienteId}?lead=${tarefa.lead.id}`}
+          href={`/workspace/${clienteId}/kanban?lead=${tarefa.lead.id}`}
           className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
         >
           {tarefa.lead.nome} · {tarefa.lead.estagio.nome}

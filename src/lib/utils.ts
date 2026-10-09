@@ -18,6 +18,12 @@ export function formatCurrency(valor: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
 }
 
+/** dd/mm, pra rótulo de eixo de gráfico — aceita "yyyy-mm-dd" (sem criar Date em UTC, que erraria o dia). */
+export function formatDateShort(isoDate: string): string {
+  const [, mes, dia] = isoDate.split("-");
+  return `${dia}/${mes}`;
+}
+
 export function isOverdue(dataPrevista: Date | string | null, concluida: boolean): boolean {
   if (!dataPrevista || concluida) return false;
   const date = typeof dataPrevista === "string" ? new Date(dataPrevista) : dataPrevista;
