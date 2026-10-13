@@ -1,11 +1,14 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatDateShort } from "@/lib/utils";
 import { ChartTooltipContent } from "./chart-tooltip";
-import { CHART_AXIS, CHART_GRID } from "./chart-colors";
+import { getChartColors } from "./chart-colors";
 
 export function NovosLeadsChart({ dados }: { dados: { data: string; quantidade: number }[] }) {
+  const { resolvedTheme } = useTheme();
+  const { grid, axis } = getChartColors(resolvedTheme === "light");
   const formatados = dados.map((d) => ({ ...d, label: formatDateShort(d.data) }));
   const totalPeriodo = dados.reduce((soma, d) => soma + d.quantidade, 0);
 
@@ -23,9 +26,9 @@ export function NovosLeadsChart({ dados }: { dados: { data: string; quantidade: 
               <stop offset="100%" stopColor="#22D3EE" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <CartesianGrid vertical={false} stroke={CHART_GRID} />
-          <XAxis dataKey="label" stroke={CHART_AXIS} fontSize={12} tickLine={false} axisLine={false} interval={1} />
-          <YAxis allowDecimals={false} stroke={CHART_AXIS} fontSize={12} tickLine={false} axisLine={false} width={28} />
+          <CartesianGrid vertical={false} stroke={grid} />
+          <XAxis dataKey="label" stroke={axis} fontSize={12} tickLine={false} axisLine={false} interval={1} />
+          <YAxis allowDecimals={false} stroke={axis} fontSize={12} tickLine={false} axisLine={false} width={28} />
           <Tooltip content={ChartTooltipContent} />
           <Area
             type="monotone"

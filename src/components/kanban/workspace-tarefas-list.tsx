@@ -94,10 +94,11 @@ export function WorkspaceTarefasList({
     router.refresh();
   }
 
-  const atrasadas = tarefas.filter((t) => isOverdue(t.dataPrevista, t.concluida));
-  const noPrazo = tarefas
-    .filter((t) => !t.concluida && !isOverdue(t.dataPrevista, t.concluida))
-    .sort((a, b) => URGENCIA_PESO[normalizarUrgencia(a.urgencia)] - URGENCIA_PESO[normalizarUrgencia(b.urgencia)]);
+  const porUrgencia = (a: TarefaDoWorkspace, b: TarefaDoWorkspace) =>
+    URGENCIA_PESO[normalizarUrgencia(a.urgencia)] - URGENCIA_PESO[normalizarUrgencia(b.urgencia)];
+
+  const atrasadas = tarefas.filter((t) => isOverdue(t.dataPrevista, t.concluida)).sort(porUrgencia);
+  const noPrazo = tarefas.filter((t) => !t.concluida && !isOverdue(t.dataPrevista, t.concluida)).sort(porUrgencia);
   const concluidas = tarefas.filter((t) => t.concluida);
 
   if (tarefas.length === 0) {

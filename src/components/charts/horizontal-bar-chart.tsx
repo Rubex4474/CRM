@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTheme } from "next-themes";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCurrency } from "@/lib/utils";
 import { makeChartTooltipContent } from "./chart-tooltip";
-import { CHART_AXIS, CHART_CATEGORICAL, CHART_GRID } from "./chart-colors";
+import { CHART_CATEGORICAL, getChartColors } from "./chart-colors";
 
 /**
  * "formato" em vez de aceitar a função formatadora direto: esse componente é
@@ -20,6 +21,8 @@ export function HorizontalBarChart({
   formato?: "numero" | "moeda";
   vazio?: string;
 }) {
+  const { resolvedTheme } = useTheme();
+  const { grid, axis } = getChartColors(resolvedTheme === "light");
   const formatarValor = formato === "moeda" ? formatCurrency : (v: number) => String(v);
   const TooltipContent = useMemo(() => makeChartTooltipContent(formatarValor), [formato]);
 
@@ -32,18 +35,21 @@ export function HorizontalBarChart({
   return (
     <ResponsiveContainer width="100%" height={Math.max(180, dados.length * 48)}>
       <BarChart data={dados} layout="vertical" margin={{ top: 4, right: 48, bottom: 4, left: 4 }}>
-        <CartesianGrid horizontal={false} stroke={CHART_GRID} />
+        <CartesianGrid horizontal={false} stroke={grid} />
         <XAxis type="number" hide domain={[0, maiorValor * 1.15 || 1]} />
         <YAxis
           type="category"
           dataKey="nome"
-          stroke={CHART_AXIS}
+          stroke={axis}
           fontSize={12.5}
           tickLine={false}
           axisLine={false}
           width={128}
         />
-        <Tooltip content={TooltipContent} cursor={{ fill: "hsl(224 14% 14%)" }} />
+        <Tooltip
+          content={TooltipContent}
+          cursor={{ fill: resolvedTheme === "light" ? "hsl(220 15% 93%)" : "hsl(224 14% 14%)" }}
+        />
         <Bar dataKey="valor" name="Valor" radius={[0, 6, 6, 0]} maxBarSize={26}>
           {dados.map((entry, index) => (
             <Cell key={entry.nome} fill={CHART_CATEGORICAL[index % CHART_CATEGORICAL.length]} />

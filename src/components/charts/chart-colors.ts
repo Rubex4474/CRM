@@ -15,5 +15,14 @@ export const CHART_CATEGORICAL = [
   "#94A3B8", // slate (fallback / "outros")
 ];
 
-export const CHART_GRID = "hsl(224 13% 16%)";
-export const CHART_AXIS = "hsl(220 9% 56%)";
+const CHART_GRID_DARK = "hsl(224 13% 16%)";
+const CHART_AXIS_DARK = "hsl(220 9% 56%)";
+const CHART_GRID_LIGHT = "hsl(220 14% 89%)";
+const CHART_AXIS_LIGHT = "hsl(220 9% 42%)";
+
+export function getChartColors(claro: boolean) {
+  return {
+    grid: claro ? CHART_GRID_LIGHT : CHART_GRID_DARK,
+    axis: claro ? CHART_AXIS_LIGHT : CHART_AXIS_DARK,
+  };
+}

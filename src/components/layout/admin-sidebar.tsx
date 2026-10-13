@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, Target, ListTodo, LogOut } from "lucide-react";
 import { logoutAction } from "@/actions/auth.actions";
 import { Logo } from "@/components/branding/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -50,15 +51,18 @@ export function AdminSidebar({ nome }: { nome: string }) {
           );
         })}
       </nav>
-      <form action={logoutAction} className="border-t border-border p-2">
-        <button
-          type="submit"
-          className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <LogOut className="h-4 w-4" strokeWidth={1.75} />
-          Sair
-        </button>
-      </form>
+      <div className="flex items-center justify-between border-t border-border px-2 py-1.5">
+        <form action={logoutAction} className="flex-1">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4" strokeWidth={1.75} />
+            Sair
+          </button>
+        </form>
+        <ThemeToggle />
+      </div>
     </aside>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { logoutAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function WorkspaceHeader({
   clienteNome,
@@ -31,14 +32,17 @@ export function WorkspaceHeader({
           <p className="text-xs font-medium text-muted-foreground">Stockmann CRM</p>
         </div>
       </div>
-      {!isAdmin && (
-        <form action={logoutAction}>
-          <Button type="submit" variant="ghost" size="sm">
-            <LogOut className="h-4 w-4" />
-            Sair
-          </Button>
-        </form>
-      )}
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        {!isAdmin && (
+          <form action={logoutAction}>
+            <Button type="submit" variant="ghost" size="sm">
+              <LogOut className="h-4 w-4" />
+              Sair
+            </Button>
+          </form>
+        )}
+      </div>
     </header>
   );
 }
