@@ -1,26 +1,32 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import type { TarefaDoWorkspace } from "@/services/workspace.service";
-import { alternarTarefaLeadAction } from "@/actions/tarefas-lead.actions";
+import { alternarTarefaLeadAction, atualizarTarefaLeadAction } from "@/actions/tarefas-lead.actions";
+import { normalizarUrgencia, URGENCIA_PESO } from "@/lib/urgencia";
 import { cn, formatDate, isOverdue } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { UrgenciaBadge } from "@/components/tarefas/urgencia-badge";
+import { EditarTarefaDialog, type TarefaEditavel } from "@/components/tarefas/editar-tarefa-dialog";
 
 function Linha({
   tarefa,
   clienteId,
   onToggle,
+  onEditar,
 }: {
   tarefa: TarefaDoWorkspace;
   clienteId: string;
   onToggle: (tarefaId: string, concluida: boolean) => void;
+  onEditar: (tarefa: TarefaDoWorkspace) => void;
 }) {
   const atrasada = isOverdue(tarefa.dataPrevista, tarefa.concluida);
+  const urgencia = normalizarUrgencia(tarefa.urgencia);
 
   return (
     <div
@@ -37,19 +43,29 @@ function Linha({
         <p className={cn("text-sm", tarefa.concluida && "text-muted-foreground line-through")}>
           {tarefa.descricao}
         </p>
-        <Link
-          href={`/workspace/${clienteId}/kanban?lead=${tarefa.lead.id}`}
-          className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
-        >
-          {tarefa.lead.nome} · {tarefa.lead.estagio.nome}
-          <ArrowRight className="h-3 w-3" />
-        </Link>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          {!tarefa.concluida && <UrgenciaBadge urgencia={urgencia} />}
+          <Link
+            href={`/workspace/${clienteId}/kanban?lead=${tarefa.lead.id}`}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+          >
+            {tarefa.lead.nome} · {tarefa.lead.estagio.nome}
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
       </div>
       {tarefa.dataPrevista && (
         <span className={cn("shrink-0 text-xs text-muted-foreground", atrasada && "font-medium text-destructive")}>
           {formatDate(tarefa.dataPrevista)}
         </span>
       )}
+      <button
+        type="button"
+        onClick={() => onEditar(tarefa)}
+        className="shrink-0 text-xs font-medium text-muted-foreground hover:text-primary"
+      >
+        Editar
+      </button>
     </div>
   );
 }
@@ -63,6 +79,7 @@ export function WorkspaceTarefasList({
 }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
+  const [editando, setEditando] = useState<TarefaDoWorkspace | null>(null);
 
   function toggle(tarefaId: string, concluida: boolean) {
     startTransition(async () => {
@@ -71,8 +88,16 @@ export function WorkspaceTarefasList({
     });
   }
 
+  async function salvarEdicao(dados: { descricao: string; dataPrevista: string; urgencia: string }) {
+    if (!editando) return;
+    await atualizarTarefaLeadAction({ tarefaId: editando.id, clienteId, ...dados });
+    router.refresh();
+  }
+
   const atrasadas = tarefas.filter((t) => isOverdue(t.dataPrevista, t.concluida));
-  const noPrazo = tarefas.filter((t) => !t.concluida && !isOverdue(t.dataPrevista, t.concluida));
+  const noPrazo = tarefas
+    .filter((t) => !t.concluida && !isOverdue(t.dataPrevista, t.concluida))
+    .sort((a, b) => URGENCIA_PESO[normalizarUrgencia(a.urgencia)] - URGENCIA_PESO[normalizarUrgencia(b.urgencia)]);
   const concluidas = tarefas.filter((t) => t.concluida);
 
   if (tarefas.length === 0) {
@@ -98,7 +123,7 @@ export function WorkspaceTarefasList({
           </CardHeader>
           <CardContent className="flex flex-col pt-0">
             {atrasadas.map((t) => (
-              <Linha key={t.id} tarefa={t} clienteId={clienteId} onToggle={toggle} />
+              <Linha key={t.id} tarefa={t} clienteId={clienteId} onToggle={toggle} onEditar={setEditando} />
             ))}
           </CardContent>
         </Card>
@@ -113,7 +138,7 @@ export function WorkspaceTarefasList({
             <p className="py-2 text-sm text-muted-foreground">Nenhuma tarefa pendente no prazo.</p>
           )}
           {noPrazo.map((t) => (
-            <Linha key={t.id} tarefa={t} clienteId={clienteId} onToggle={toggle} />
+            <Linha key={t.id} tarefa={t} clienteId={clienteId} onToggle={toggle} onEditar={setEditando} />
           ))}
         </CardContent>
       </Card>
@@ -125,11 +150,18 @@ export function WorkspaceTarefasList({
           </CardHeader>
           <CardContent className="flex flex-col pt-0">
             {concluidas.map((t) => (
-              <Linha key={t.id} tarefa={t} clienteId={clienteId} onToggle={toggle} />
+              <Linha key={t.id} tarefa={t} clienteId={clienteId} onToggle={toggle} onEditar={setEditando} />
             ))}
           </CardContent>
         </Card>
       )}
+
+      <EditarTarefaDialog
+        tarefa={editando as TarefaEditavel | null}
+        open={!!editando}
+        onOpenChange={(open) => !open && setEditando(null)}
+        onSalvar={salvarEdicao}
+      />
     </div>
   );
 }

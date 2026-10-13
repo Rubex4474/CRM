@@ -3,21 +3,25 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageCircle, Plus, Trash2, X } from "lucide-react";
+import { ChevronDown, MessageCircle, Plus, Trash2, X } from "lucide-react";
 import type { LeadComTarefas } from "@/services/workspace.service";
 import { atualizarLeadAction, excluirLeadAction } from "@/actions/leads.actions";
 import {
   alternarTarefaLeadAction,
+  atualizarTarefaLeadAction,
   criarTarefaLeadAction,
   excluirTarefaLeadAction,
 } from "@/actions/tarefas-lead.actions";
-import { buildWhatsappLink, cn, formatCurrency, formatDate, isOverdue } from "@/lib/utils";
+import { buildWhatsappLink, cn, formatCurrency } from "@/lib/utils";
+import { normalizarUrgencia, URGENCIA_PESO, type Urgencia } from "@/lib/urgencia";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { UrgenciaSelect } from "@/components/tarefas/urgencia-select";
+import { TarefaLeadItem, type TarefaLeadMinima } from "@/components/tarefas/tarefa-lead-item";
+import { EditarTarefaDialog } from "@/components/tarefas/editar-tarefa-dialog";
 
 export function LeadPanel({
   clienteId,
@@ -79,6 +83,9 @@ function PanelContent({
   const [valorProposta, setValorProposta] = useState(lead.valorProposta?.toString() ?? "");
   const [novaTarefa, setNovaTarefa] = useState("");
   const [novaData, setNovaData] = useState("");
+  const [novaUrgencia, setNovaUrgencia] = useState<Urgencia>("media");
+  const [editando, setEditando] = useState<TarefaLeadMinima | null>(null);
+  const [concluidasAbertas, setConcluidasAbertas] = useState(false);
 
   const ehEtapaDeProposta = estagioNome.toLowerCase().includes("proposta");
 
@@ -122,14 +129,22 @@ function PanelContent({
     formData.set("clienteId", clienteId);
     formData.set("leadId", lead.id);
     formData.set("descricao", novaTarefa.trim());
+    formData.set("urgencia", novaUrgencia);
     if (novaData) formData.set("dataPrevista", novaData);
 
     startTransition(async () => {
       await criarTarefaLeadAction(formData);
       setNovaTarefa("");
       setNovaData("");
+      setNovaUrgencia("media");
       router.refresh();
     });
+  }
+
+  async function salvarEdicaoTarefa(dados: { descricao: string; dataPrevista: string; urgencia: string }) {
+    if (!editando) return;
+    await atualizarTarefaLeadAction({ tarefaId: editando.id, clienteId, ...dados });
+    router.refresh();
   }
 
   function alternarTarefa(tarefaId: string, concluida: boolean) {
@@ -214,42 +229,72 @@ function PanelContent({
 
         <div>
           <h3 className="mb-3 font-heading text-sm font-bold">Tarefas</h3>
-          <div className="flex flex-col gap-2">
-            {lead.tarefas.map((tarefa) => {
-              const atrasada = isOverdue(tarefa.dataPrevista, tarefa.concluida);
+
+          {lead.tarefas.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhuma tarefa criada ainda.</p>
+          ) : (
+            (() => {
+              const pendentes = lead.tarefas
+                .filter((t) => !t.concluida)
+                .sort((a, b) => {
+                  const pesoA = URGENCIA_PESO[normalizarUrgencia(a.urgencia)];
+                  const pesoB = URGENCIA_PESO[normalizarUrgencia(b.urgencia)];
+                  if (pesoA !== pesoB) return pesoA - pesoB;
+                  if (!a.dataPrevista) return 1;
+                  if (!b.dataPrevista) return -1;
+                  return a.dataPrevista.getTime() - b.dataPrevista.getTime();
+                });
+              const concluidas = lead.tarefas.filter((t) => t.concluida);
+
               return (
-                <div
-                  key={tarefa.id}
-                  className={cn(
-                    "flex items-start gap-2.5 rounded-lg border border-border p-2.5",
-                    atrasada && "border-destructive/40 bg-destructive/5",
+                <div className="flex flex-col gap-4">
+                  {pendentes.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhuma tarefa pendente.</p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {pendentes.map((tarefa) => (
+                        <TarefaLeadItem
+                          key={tarefa.id}
+                          tarefa={tarefa}
+                          onToggle={alternarTarefa}
+                          onEditar={setEditando}
+                          onExcluir={excluirTarefa}
+                        />
+                      ))}
+                    </div>
                   )}
-                >
-                  <Checkbox
-                    checked={tarefa.concluida}
-                    onCheckedChange={(checked) => alternarTarefa(tarefa.id, checked === true)}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1">
-                    <p className={cn("text-sm", tarefa.concluida && "text-muted-foreground line-through")}>
-                      {tarefa.descricao}
-                    </p>
-                    {tarefa.dataPrevista && (
-                      <p className={cn("mt-0.5 text-xs text-muted-foreground", atrasada && "text-destructive")}>
-                        {formatDate(tarefa.dataPrevista)} {atrasada && "· atrasada"}
-                      </p>
-                    )}
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => excluirTarefa(tarefa.id)}>
-                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  </Button>
+
+                  {concluidas.length > 0 && (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setConcluidasAbertas((v) => !v)}
+                        className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                      >
+                        <ChevronDown
+                          className={cn("h-3.5 w-3.5 transition-transform", concluidasAbertas && "rotate-180")}
+                        />
+                        Concluídas ({concluidas.length})
+                      </button>
+                      {concluidasAbertas && (
+                        <div className="mt-2 flex flex-col gap-2">
+                          {concluidas.map((tarefa) => (
+                            <TarefaLeadItem
+                              key={tarefa.id}
+                              tarefa={tarefa}
+                              onToggle={alternarTarefa}
+                              onEditar={setEditando}
+                              onExcluir={excluirTarefa}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
-            })}
-            {lead.tarefas.length === 0 && (
-              <p className="text-sm text-muted-foreground">Nenhuma tarefa criada ainda.</p>
-            )}
-          </div>
+            })()
+          )}
 
           <div className="mt-3 flex flex-col gap-2 rounded-lg border border-dashed border-border p-2.5">
             <Input
@@ -260,6 +305,7 @@ function PanelContent({
             />
             <div className="flex gap-2">
               <Input type="date" value={novaData} onChange={(e) => setNovaData(e.target.value)} className="flex-1" />
+              <UrgenciaSelect value={novaUrgencia} onValueChange={setNovaUrgencia} className="w-32" />
               <Button size="sm" onClick={adicionarTarefa}>
                 <Plus className="h-4 w-4" />
                 Adicionar
@@ -268,6 +314,13 @@ function PanelContent({
           </div>
         </div>
       </div>
+
+      <EditarTarefaDialog
+        tarefa={editando}
+        open={!!editando}
+        onOpenChange={(open) => !open && setEditando(null)}
+        onSalvar={salvarEdicaoTarefa}
+      />
     </div>
   );
 }

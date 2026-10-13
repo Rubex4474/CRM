@@ -109,6 +109,8 @@ model TarefaLead {
   descricao    String
   dataPrevista DateTime?
   concluida    Boolean   @default(false)
+  // "urgente" | "media" | "tranquila"
+  urgencia     String    @default("media")
   criadoEm     DateTime  @default(now())
 
   @@index([leadId])
@@ -121,6 +123,8 @@ model TarefaAgencia {
   descricao    String
   dataPrevista DateTime?
   concluida    Boolean   @default(false)
+  // "urgente" | "media" | "tranquila"
+  urgencia     String    @default("media")
   criadoEm     DateTime  @default(now())
 
   @@index([clienteId])

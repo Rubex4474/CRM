@@ -2,17 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { ClienteComTarefas } from "@/services/tarefas-agencia.service";
-import {
-  alternarTarefaAgenciaAction,
-  criarTarefaAgenciaAction,
-  excluirTarefaAgenciaAction,
-} from "@/actions/tarefas-agencia.actions";
-import { cn, formatDate, isOverdue } from "@/lib/utils";
+import { criarTarefaAgenciaAction } from "@/actions/tarefas-agencia.actions";
+import type { Urgencia } from "@/lib/urgencia";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -21,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UrgenciaSelect } from "./urgencia-select";
+import { TarefaAgenciaSection } from "./tarefa-agencia-section";
 
 export function TarefasBoard({ clientes }: { clientes: ClienteComTarefas[] }) {
   const router = useRouter();
@@ -28,6 +25,7 @@ export function TarefasBoard({ clientes }: { clientes: ClienteComTarefas[] }) {
   const [filtro, setFiltro] = useState<string>("todos");
   const [descricao, setDescricao] = useState("");
   const [data, setData] = useState("");
+  const [urgencia, setUrgencia] = useState<Urgencia>("media");
   const [clienteNovaTarefa, setClienteNovaTarefa] = useState(clientes[0]?.id ?? "");
 
   const clientesFiltrados = useMemo(
@@ -40,26 +38,14 @@ export function TarefasBoard({ clientes }: { clientes: ClienteComTarefas[] }) {
     const formData = new FormData();
     formData.set("clienteId", clienteNovaTarefa);
     formData.set("descricao", descricao.trim());
+    formData.set("urgencia", urgencia);
     if (data) formData.set("dataPrevista", data);
 
     startTransition(async () => {
       await criarTarefaAgenciaAction(formData);
       setDescricao("");
       setData("");
-      router.refresh();
-    });
-  }
-
-  function alternar(tarefaId: string, concluida: boolean) {
-    startTransition(async () => {
-      await alternarTarefaAgenciaAction({ tarefaId, concluida });
-      router.refresh();
-    });
-  }
-
-  function excluir(tarefaId: string) {
-    startTransition(async () => {
-      await excluirTarefaAgenciaAction({ tarefaId });
+      setUrgencia("media");
       router.refresh();
     });
   }
@@ -67,8 +53,8 @@ export function TarefasBoard({ clientes }: { clientes: ClienteComTarefas[] }) {
   return (
     <div className="flex flex-col gap-5">
       <Card>
-        <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-end">
-          <div className="flex-1">
+        <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-end sm:flex-wrap">
+          <div className="min-w-[12rem] flex-1">
             <Input
               placeholder="Nova tarefa (ex: Enviar relatório mensal)"
               value={descricao}
@@ -77,7 +63,7 @@ export function TarefasBoard({ clientes }: { clientes: ClienteComTarefas[] }) {
             />
           </div>
           <Select value={clienteNovaTarefa} onValueChange={setClienteNovaTarefa}>
-            <SelectTrigger className="sm:w-48">
+            <SelectTrigger className="sm:w-44">
               <SelectValue placeholder="Cliente" />
             </SelectTrigger>
             <SelectContent>
@@ -88,6 +74,7 @@ export function TarefasBoard({ clientes }: { clientes: ClienteComTarefas[] }) {
               ))}
             </SelectContent>
           </Select>
+          <UrgenciaSelect value={urgencia} onValueChange={setUrgencia} />
           <Input type="date" value={data} onChange={(e) => setData(e.target.value)} className="sm:w-40" />
           <Button onClick={adicionar}>
             <Plus className="h-4 w-4" />
@@ -114,42 +101,7 @@ export function TarefasBoard({ clientes }: { clientes: ClienteComTarefas[] }) {
         {clientesFiltrados.map((cliente) => (
           <div key={cliente.id}>
             <h2 className="mb-2 font-heading text-sm font-bold text-muted-foreground">{cliente.nome}</h2>
-            <div className="flex flex-col gap-2">
-              {cliente.tarefas.length === 0 && (
-                <p className="text-sm text-muted-foreground">Nenhuma tarefa para este cliente.</p>
-              )}
-              {cliente.tarefas.map((tarefa) => {
-                const atrasada = isOverdue(tarefa.dataPrevista, tarefa.concluida);
-                return (
-                  <Card
-                    key={tarefa.id}
-                    className={cn("p-3", atrasada && "border-destructive/40 bg-destructive/5")}
-                  >
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={tarefa.concluida}
-                        onCheckedChange={(checked) => alternar(tarefa.id, checked === true)}
-                        className="mt-0.5"
-                      />
-                      <div className="flex-1">
-                        <p className={cn("text-sm", tarefa.concluida && "text-muted-foreground line-through")}>
-                          {tarefa.descricao}
-                        </p>
-                        {tarefa.dataPrevista && (
-                          <p className={cn("mt-0.5 flex items-center gap-1 text-xs text-muted-foreground", atrasada && "text-destructive")}>
-                            {atrasada && <AlertTriangle className="h-3 w-3" />}
-                            {formatDate(tarefa.dataPrevista)}
-                          </p>
-                        )}
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => excluir(tarefa.id)}>
-                        <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+            <TarefaAgenciaSection tarefas={cliente.tarefas} />
           </div>
         ))}
       </div>
