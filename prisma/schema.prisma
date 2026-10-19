@@ -58,6 +58,8 @@ model Cliente {
   leads     Lead[]
   tarefas   TarefaAgencia[]
   notas     NotaCliente[]
+
+  integracaoMetaAds IntegracaoMetaAds?
 }
 
 model Funil {
@@ -78,6 +80,9 @@ model Estagio {
   ordem   Int
   leads   Lead[]
 
+  // Estágio em que novos leads de anúncio caem quando chegam via webhook.
+  integracoesMetaAds IntegracaoMetaAds[]
+
   @@index([funilId])
 }
 
@@ -93,6 +98,9 @@ model Lead {
   notas        String?
   // Preenchido quando o lead está numa etapa de proposta (ex: "Proposta enviada").
   valorProposta Float?
+  // leadgen_id do Meta — presente só em leads vindos do webhook de anúncio.
+  // Evita duplicar o mesmo lead se a Meta reenviar a notificação (ela reenvia).
+  metaLeadgenId String?       @unique
   ordem        Int           @default(0)
   criadoEm     DateTime      @default(now())
   atualizadoEm DateTime      @updatedAt
@@ -136,6 +144,30 @@ model NotaCliente {
   cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   texto     String
   criadoEm  DateTime @default(now())
+
+  @@index([clienteId])
+}
+
+// Liga a Página do Facebook/Instagram de um cliente ao webhook de Lead Ads da
+// Meta — um lead preenchido no anúncio cai direto no estágio configurado,
+// sem Zapier/Make no meio. Um app da Meta só, compartilhado entre clientes;
+// o que muda por cliente é o pageId + o token de acesso da página dele.
+model IntegracaoMetaAds {
+  id        String   @id @default(cuid())
+  clienteId String   @unique
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  pageId          String  @unique
+  nomePagina      String?
+  // Page Access Token de longa duração, gerado no Meta Business Suite.
+  pageAccessToken String
+
+  estagioDestinoId String
+  estagioDestino   Estagio @relation(fields: [estagioDestinoId], references: [id], onDelete: Cascade)
+
+  ativo        Boolean   @default(true)
+  ultimoLeadEm DateTime?
+  criadoEm     DateTime  @default(now())
 
   @@index([clienteId])
 }

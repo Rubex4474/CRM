@@ -23,6 +23,8 @@ export async function getClienteDetalhe(clienteId: string) {
       leads: { select: { id: true } },
       notas: { orderBy: { criadoEm: "desc" } },
       tarefas: { orderBy: [{ concluida: "asc" }, { dataPrevista: "asc" }] },
+      funis: { include: { estagios: { orderBy: { ordem: "asc" } } } },
+      integracaoMetaAds: true,
     },
   });
 

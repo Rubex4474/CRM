@@ -5,6 +5,7 @@ import { ClienteHeader } from "@/components/clientes/cliente-header";
 import { ClienteLoginCard } from "@/components/clientes/cliente-login-card";
 import { ClienteContratoCard } from "@/components/clientes/cliente-contrato-card";
 import { ClienteLogoCard } from "@/components/clientes/cliente-logo-card";
+import { ClienteMetaAdsCard } from "@/components/clientes/cliente-meta-ads-card";
 import { ClienteTarefas } from "@/components/clientes/cliente-tarefas";
 import { NotasPanel } from "@/components/notas/notas-panel";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,9 @@ export default async function ClienteDetalhePage({
   if (!cliente || cliente.ehAgencia) notFound();
 
   const usuario = cliente.usuarios[0];
+  const estagios = cliente.funis.flatMap((funil) =>
+    funil.estagios.map((estagio) => ({ id: estagio.id, nome: estagio.nome, funilNome: funil.nome })),
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,6 +44,7 @@ export default async function ClienteDetalhePage({
             obsContrato={cliente.obsContrato}
           />
           <ClienteLoginCard clienteId={cliente.id} usuarioId={usuario?.id} email={usuario?.email} />
+          <ClienteMetaAdsCard clienteId={cliente.id} estagios={estagios} integracao={cliente.integracaoMetaAds} />
           <ClienteTarefas clienteId={cliente.id} tarefas={cliente.tarefas} />
         </div>
         <div>
